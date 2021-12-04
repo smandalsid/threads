@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include<time.h>
 
 void *rolldie()
 {
@@ -18,6 +19,7 @@ int main()
     int i;
     for (i=0;i<4;i++)
     {
+        srand(time(NULL));
         pthread_create(&th[i],NULL,&rolldie,NULL);
     }
 
