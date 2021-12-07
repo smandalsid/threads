@@ -34,7 +34,7 @@ void *reader(void *arg)
 void *writer(void *arg)
 {
     sem_wait(&wrt);
-    data=rand();
+    data=rand()%100+1;
     printf("Writer %d writing data\n", *(int *)arg);
     printf("New data written, data-%d\n", data);
     free(arg);
@@ -43,56 +43,73 @@ void *writer(void *arg)
 
 int main()
 {
-    pthread_t r1, r2, w1, w2;
+    pthread_t r[10], w[10];
     pthread_mutex_init(&mutex, NULL);
     sem_init(&wrt, 0, 1);
 
     int *a;
-
-    a=malloc(sizeof(int));
-    *a=1;
-    
-    if(pthread_create(&r1, NULL, &reader, a)!=0)
+    for(int i=0;i<10;i++)
     {
-        perror("Failed to create thread\n");
+        a=malloc(sizeof(int));
+        *a=i;
+        if(pthread_create(&r[i], NULL, &reader, a)!=0)
+        {
+            perror("Failed to create thread\n");
+        }
+        a=malloc(sizeof(int));
+        *a=i;
+        if(pthread_create(&w[i], NULL, &writer, a)!=0)
+        {
+            perror("Failed to create thread\n");
+        }
     }
 
-    *a=1;
-    if(pthread_create(&w1, NULL, &writer, a)!=0)
+    for(int i=0;i<10;i++)    
     {
-        perror("Failed to create thread\n");
+        if(pthread_join(r[i], NULL)!=0)
+        {
+            perror("Failed to join Thread\n");
+        }
+        if(pthread_join(w[i], NULL)!=0)
+        {
+            perror("Failed to join thread\n");
+        }
     }
 
-    *a=2;
-    if(pthread_create(&r2, NULL, &reader, a)!=0)
-    {
-        perror("Failed to create thread\n");
-    }
 
-    *a=2;
-    if(pthread_create(&w2, NULL, &writer, a)!=0)
-    {
-        perror("Failed to create thread\n");
-    }
+    // a=malloc(sizeof(int));
+    // *a=2;
+    // if(pthread_create(&r2, NULL, &reader, a)!=0)
+    // {
+    //     perror("Failed to create thread\n");
+    // }
 
-    if(pthread_join(r1, NULL)!=0)
-    {
-        perror("Failed to join thread\n");
-    }
-    if(pthread_join(w1, NULL)!=0)
-    {
-        perror("Failed to join thread\n");
-    }
-    if(pthread_join(r2, NULL)!=0)
-    {
-        perror("Failed to join thread\n");
-    }
-    if(pthread_join(w2, NULL)!=0)
-    {
-        perror("Failed to join thread\n");
-    }
+    // a=malloc(sizeof(int));
+    // *a=2;
+    // if(pthread_create(&w2, NULL, &writer, a)!=0)
+    // {
+    //     perror("Failed to create thread\n");
+    // }
+
+    // if(pthread_join(w1, NULL)!=0)
+    // {
+    //     perror("Failed to join thread\n");
+    // }
+    // if(pthread_join(r1, NULL)!=0)
+    // {
+    //     perror("Failed to join thread\n");
+    // }
+    // if(pthread_join(r2, NULL)!=0)
+    // {
+    //     perror("Failed to join thread\n");
+    // }
+    // if(pthread_join(w2, NULL)!=0)
+    // {
+    //     perror("Failed to join thread\n");
+    // }
 
     pthread_mutex_destroy(&mutex);
     sem_destroy(&wrt);
+    free(a);
     return 0;
 }
