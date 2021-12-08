@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<pthread.h>
 #include<semaphore.h>
+#include<unistd.h>
 
 int readers=0;
 pthread_mutex_t mutex;
@@ -34,6 +35,7 @@ void *reader(void *arg)
 void *writer(void *arg)
 {
     sem_wait(&wrt);
+    sleep(1);
     data=rand()%100+1;
     printf("Writer %d writing data\n", *(int *)arg);
     printf("New data written, data-%d\n", data);
